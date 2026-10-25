@@ -18,7 +18,7 @@ const LINEAS = [
 const orden = (i: number) => ({ ["--i" as string]: i }) as CSSProperties;
 
 export default function Hero({ fotoVertical, fotoHorizontal }: Props) {
-  const alt = "La barra de Cabra Austral por la mañana";
+  const alt = "El salón de Cabra Austral, con la barra y el arco de ladrillo";
   return (
     <>
       {/* Telón de entrada: aparece la cabra, se dibuja el trazo y el telón sube.
@@ -87,7 +87,7 @@ export default function Hero({ fotoVertical, fotoHorizontal }: Props) {
 
         {(fotoVertical || fotoHorizontal || MOSTRAR_MARCADORES) && (
           <p className="entra pie-foto absolute bottom-3 right-4 text-marfil/75 sm:right-6" style={orden(3)}>
-            barra, 8:00 am
+            el salón y la barra
           </p>
         )}
       </section>

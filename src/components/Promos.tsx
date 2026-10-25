@@ -37,13 +37,13 @@ export default function Promos({ promos, fotoCafe }: Props) {
         <figure className="reveal">
           <Foto
             src={fotoCafe}
-            alt="Un café servido con medialunas en Cabra Austral"
+            alt="Un tostado y un café con leche servidos al sol en Cabra Austral"
             indicacion="Café servido: taza con latte art y dos medialunas, vista desde arriba en diagonal"
             proporcion="4 / 5"
             sizes="(min-width: 768px) 40vw, 100vw"
             oscuro
           />
-          <figcaption className="pie-foto mt-3 text-niebla">café con leche y dos medialunas, 9:15 am</figcaption>
+          <figcaption className="pie-foto mt-3 text-niebla">tostado y café con leche, al sol</figcaption>
         </figure>
         )}
       </div>

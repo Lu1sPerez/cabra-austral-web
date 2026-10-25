@@ -38,14 +38,14 @@ export default function Menu({ categorias, fotoPasteleria }: Props) {
       <div className="relative">
         <Foto
           src={fotoPasteleria}
-          alt="La vitrina de pastelería de Cabra Austral"
+          alt="Cookies rellenas de chocolate de Cabra Austral"
           indicacion="Vitrina de pastelería: tortas, cookies y alfajores, a la altura de los ojos"
           proporcion="3 / 2"
           sizes="100vw"
           className="max-h-[70vh]"
         />
         <p className="pie-foto absolute bottom-3 right-4 rounded-sm bg-marfil/85 px-2 py-1 text-noche sm:right-6">
-          la vitrina, media tarde
+          cookies rellenas, de la casa
         </p>
       </div>
       )}
