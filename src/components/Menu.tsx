@@ -4,6 +4,7 @@ import { useRef, useState, type KeyboardEvent } from "react";
 import type { Categoria } from "@/lib/menu";
 import Foto from "./Foto";
 import { LINKS } from "@/lib/negocio";
+import { MOSTRAR_MARCADORES } from "@/lib/fotos";
 
 type Props = { categorias: Categoria[]; fotoPasteleria: string | null };
 
@@ -11,7 +12,7 @@ const idDe = (nombre: string) =>
   nombre
     .toLowerCase()
     .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
+    .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z0-9]+/g, "-");
 
 export default function Menu({ categorias, fotoPasteleria }: Props) {
@@ -33,6 +34,7 @@ export default function Menu({ categorias, fotoPasteleria }: Props) {
 
   return (
     <section id="menu" aria-labelledby="titulo-menu" className="scroll-mt-14 bg-marfil pb-20 md:scroll-mt-16 md:pb-28">
+      {(fotoPasteleria || MOSTRAR_MARCADORES) && (
       <div className="relative">
         <Foto
           src={fotoPasteleria}
@@ -46,8 +48,9 @@ export default function Menu({ categorias, fotoPasteleria }: Props) {
           la vitrina, media tarde
         </p>
       </div>
+      )}
 
-      <div className="mx-auto max-w-7xl px-4 pt-14 sm:px-6 md:pt-20">
+      <div className="mx-auto max-w-7xl px-4 pt-20 sm:px-6 md:pt-24">
         <div className="reveal grid gap-6 md:grid-cols-[1fr_auto] md:items-end">
           <div>
             <p className="etiqueta mb-4 text-piedra">lo que hay en la barra · se actualiza solo</p>

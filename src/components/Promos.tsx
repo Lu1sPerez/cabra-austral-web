@@ -1,4 +1,5 @@
 import Foto from "./Foto";
+import { MOSTRAR_MARCADORES } from "@/lib/fotos";
 
 type Props = { promos: string[]; fotoCafe: string | null };
 
@@ -32,6 +33,7 @@ export default function Promos({ promos, fotoCafe }: Props) {
             ))}
           </ol>
         </div>
+        {(fotoCafe || MOSTRAR_MARCADORES) && (
         <figure className="reveal">
           <Foto
             src={fotoCafe}
@@ -43,6 +45,7 @@ export default function Promos({ promos, fotoCafe }: Props) {
           />
           <figcaption className="pie-foto mt-3 text-niebla">café con leche y dos medialunas, 9:15 am</figcaption>
         </figure>
+        )}
       </div>
     </section>
   );

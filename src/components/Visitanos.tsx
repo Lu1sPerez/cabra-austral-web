@@ -2,6 +2,7 @@ import Foto from "./Foto";
 import EstadoAbierto from "./EstadoAbierto";
 import { HORARIOS_TEXTO } from "@/lib/horarios";
 import { LINKS, NEGOCIO } from "@/lib/negocio";
+import { MOSTRAR_MARCADORES } from "@/lib/fotos";
 
 export default function Visitanos({ fotoFachada }: { fotoFachada: string | null }) {
   return (
@@ -50,6 +51,7 @@ export default function Visitanos({ fotoFachada }: { fotoFachada: string | null 
         </div>
 
         <div className="reveal flex flex-col gap-6">
+          {(fotoFachada || MOSTRAR_MARCADORES) && (
           <figure>
             <Foto
               src={fotoFachada}
@@ -60,6 +62,7 @@ export default function Visitanos({ fotoFachada }: { fotoFachada: string | null 
             />
             <figcaption className="pie-foto mt-3 text-piedra">9 de julio 1453, perito moreno</figcaption>
           </figure>
+          )}
           <div className="relative w-full overflow-hidden border border-borde bg-niebla" style={{ aspectRatio: "4 / 3" }}>
             <iframe
               title="Mapa: cómo llegar a Cabra Austral"

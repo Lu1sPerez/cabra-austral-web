@@ -12,9 +12,11 @@ type Props = {
   grosor?: number;
   /** Si se pasa, el trazo se dibuja según la variable CSS --p (0 a 1) del contenedor */
   animado?: boolean;
+  /** Clase extra para el trazo (ej. la animación de la entrada) */
+  clasePath?: string;
 };
 
-export default function Trazo({ className = "", grosor = 5, animado = false }: Props) {
+export default function Trazo({ className = "", grosor = 5, animado = false, clasePath }: Props) {
   return (
     <svg viewBox={TRAZO_VIEWBOX} className={className} fill="none" aria-hidden="true" focusable="false">
       <path
@@ -24,7 +26,7 @@ export default function Trazo({ className = "", grosor = 5, animado = false }: P
         strokeWidth={grosor}
         strokeLinecap="round"
         strokeLinejoin="round"
-        className={animado ? "trazo-animado" : undefined}
+        className={animado ? "trazo-animado" : clasePath}
       />
     </svg>
   );

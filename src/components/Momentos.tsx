@@ -2,11 +2,14 @@
 
 import { useRef } from "react";
 import Foto from "./Foto";
+import { MOSTRAR_MARCADORES } from "@/lib/fotos";
 
 type Momento = { foto: string | null; pie: string; indicacion: string };
 
-export default function Momentos({ momentos }: { momentos: Momento[] }) {
+export default function Momentos({ momentos: todos }: { momentos: Momento[] }) {
   const pista = useRef<HTMLUListElement>(null);
+  // En la web publicada solo aparecen los momentos que ya tienen foto
+  const momentos = MOSTRAR_MARCADORES ? todos : todos.filter((m) => m.foto);
 
   const mover = (dir: 1 | -1) => {
     const el = pista.current;
@@ -14,6 +17,8 @@ export default function Momentos({ momentos }: { momentos: Momento[] }) {
     const reducir = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     el.scrollBy({ left: dir * el.clientWidth * 0.8, behavior: reducir ? "auto" : "smooth" });
   };
+
+  if (momentos.length === 0) return null;
 
   return (
     <section aria-labelledby="titulo-momentos" className="overflow-hidden bg-noche py-20 text-marfil md:py-28">

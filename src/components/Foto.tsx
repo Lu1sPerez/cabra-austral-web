@@ -1,4 +1,6 @@
 import Image from "next/image";
+import { Cabra } from "./Logo";
+import { MOSTRAR_MARCADORES } from "@/lib/fotos";
 
 type Props = {
   src: string | null;
@@ -41,12 +43,20 @@ export default function Foto({
       role="img"
       aria-label={alt}
     >
-      <div className="marcador-trama absolute inset-0" aria-hidden="true" />
-      <div className="absolute left-3 top-3 max-w-[85%] text-[11px] leading-snug" aria-hidden="true">
-        <span className="font-semibold uppercase tracking-etiqueta">foto {proporcion ? `· ${proporcion.replace(/\s/g, "")}` : ""}</span>
-        <br />
-        {indicacion}
-      </div>
+      {MOSTRAR_MARCADORES ? (
+        <>
+          <div className="marcador-trama absolute inset-0" aria-hidden="true" />
+          <div className="absolute left-3 top-3 max-w-[85%] text-[11px] leading-snug" aria-hidden="true">
+            <span className="font-semibold uppercase tracking-etiqueta">
+              foto {proporcion ? `· ${proporcion.replace(/\s/g, "")}` : ""}
+            </span>
+            <br />
+            {indicacion}
+          </div>
+        </>
+      ) : (
+        <Cabra className="absolute left-1/2 top-1/2 h-[38%] w-auto -translate-x-1/2 -translate-y-1/2 opacity-[0.08]" />
+      )}
     </div>
   );
 }
