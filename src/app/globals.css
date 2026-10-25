@@ -137,6 +137,123 @@ html {
   opacity: 0.12;
 }
 
+/* ---------- Entrada de la página (estilo landonorris) ----------
+   1) Telón pizarra: aparece la cabra y se dibuja el trazo.
+   2) El telón sube y deja ver la portada.
+   3) El titular sube línea por línea, y después el resto.
+   Dura unos 2,5 s. En la misma visita no se repite, y con "reducir movimiento" no se muestra. */
+:root {
+  --t: 1.7s; /* momento en que arranca la portada */
+}
+.sin-intro {
+  --t: 0.05s;
+}
+.intro {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #496275;
+  color: #f0eee9;
+  pointer-events: none;
+  animation: intro-sube 0.9s cubic-bezier(0.76, 0, 0.24, 1) 1.45s forwards;
+}
+.sin-intro .intro {
+  display: none;
+}
+.intro-cabra {
+  animation: aparece 0.6s ease 0.1s both;
+}
+.intro-trazo {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: dibuja 1s cubic-bezier(0.65, 0, 0.35, 1) 0.35s forwards;
+}
+.intro-etiqueta {
+  animation: aparece 0.5s ease 0.7s both;
+}
+.linea {
+  display: block;
+  overflow: hidden;
+  padding-top: 0.08em;
+  margin-top: -0.08em;
+}
+.linea > span {
+  display: block;
+  animation: sube 1s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(var(--t) + var(--i, 0) * 90ms);
+}
+.entra {
+  animation: aparece 0.8s ease both;
+  animation-delay: calc(var(--t) + 0.45s + var(--i, 0) * 110ms);
+}
+.intro-foto {
+  animation: acerca 2.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(var(--t) - 0.45s);
+}
+.intro-header {
+  animation: baja 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(var(--t) + 0.25s);
+}
+@keyframes intro-sube {
+  to {
+    transform: translateY(-100%);
+    visibility: hidden;
+  }
+}
+@keyframes dibuja {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes aparece {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes sube {
+  from {
+    transform: translateY(105%);
+  }
+  to {
+    transform: none;
+  }
+}
+@keyframes acerca {
+  from {
+    transform: scale(1.12);
+  }
+  to {
+    transform: none;
+  }
+}
+@keyframes baja {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .intro {
+    display: none;
+  }
+  .linea > span,
+  .entra,
+  .intro-foto,
+  .intro-header {
+    animation: none;
+  }
+}
+
 /* ---------- Momento protagonista: el manifiesto ---------- */
 .manifiesto {
   height: 240vh;

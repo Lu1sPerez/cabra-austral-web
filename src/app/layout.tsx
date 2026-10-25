@@ -50,8 +50,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="es-AR" className={`${display.variable} ${sans.variable}`} suppressHydrationWarning>
       <head>
-        {/* Marca que hay JavaScript, para activar las apariciones suaves sin esconder nada si no lo hay */}
-        <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('js')" }} />
+        {/* Marca que hay JavaScript y, si ya vio la entrada en esta visita (o llega a una sección con #), la saltea */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "(function(){var d=document.documentElement;d.classList.add('js');try{if(sessionStorage.getItem('intro')||location.hash){d.classList.add('sin-intro')}sessionStorage.setItem('intro','1')}catch(e){}})()",
+          }}
+        />
       </head>
       <body className="bg-marfil font-sans text-noche antialiased">
         <a href="#contenido" className="saltar">
