@@ -30,6 +30,8 @@ function listarFotos(dir) {
 const nextConfig = {
   env: {
     FOTOS_DISPONIBLES: JSON.stringify(listarFotos(join(process.cwd(), "public", "fotos"))),
+    // Vercel define VERCEL_ENV al compilar: "production" en la web publicada, "preview" en las pruebas.
+    MOSTRAR_MARCADORES: process.env.VERCEL_ENV === "production" ? "no" : "si",
   },
   images: {
     formats: ["image/avif", "image/webp"],
