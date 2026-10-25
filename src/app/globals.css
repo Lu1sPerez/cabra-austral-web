@@ -1,0 +1,230 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---------- Base ---------- */
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* Foco visible y claro en toda la web (teclado) */
+:focus-visible {
+  outline: 3px solid #496275;
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+.bg-noche :focus-visible,
+.bg-pizarra :focus-visible {
+  outline-color: #f0eee9;
+}
+
+.saltar {
+  position: absolute;
+  left: 1rem;
+  top: -4rem;
+  z-index: 100;
+  background: #222d35;
+  color: #f0eee9;
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  border-radius: 999px;
+}
+.saltar:focus {
+  top: 1rem;
+}
+
+/* ---------- Piezas tipográficas ---------- */
+.titulo-seccion {
+  font-family: var(--font-display), Georgia, serif;
+  text-transform: uppercase;
+  line-height: 0.84;
+  letter-spacing: -0.01em;
+  font-size: clamp(3.6rem, 17vw, 9rem);
+}
+
+.titulo-portada {
+  font-family: var(--font-display), Georgia, serif;
+  text-transform: uppercase;
+  line-height: 0.84;
+  letter-spacing: -0.01em;
+  font-size: clamp(4.2rem, min(21vw, 16.5vh), 11rem);
+}
+
+.texto-manifiesto {
+  font-family: var(--font-display), Georgia, serif;
+  line-height: 1.04;
+  letter-spacing: -0.005em;
+  font-size: clamp(2rem, min(8.4vw, 6vh), 4.4rem);
+}
+
+.titulo-promo {
+  font-family: var(--font-display), Georgia, serif;
+  text-transform: uppercase;
+  line-height: 0.95;
+  font-size: clamp(1.6rem, 6.5vw, 2.6rem);
+}
+
+/* Etiquetas chicas en minúscula, al estilo "café · desde 2026" */
+.etiqueta {
+  font-size: 12px;
+  text-transform: lowercase;
+  letter-spacing: 0.08em;
+  font-weight: 500;
+}
+
+/* Pies de foto: "barra, 8:00 am" */
+.pie-foto {
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+}
+
+.boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 1.4rem;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 15px;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.boton-redondo {
+  display: inline-flex;
+  height: 44px;
+  width: 44px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid rgb(240 238 233 / 0.5);
+  font-size: 18px;
+  transition: background-color 0.2s;
+}
+.boton-redondo:hover {
+  background: rgb(240 238 233 / 0.12);
+}
+
+.enlace-subrayado {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 0% 1.5px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size 0.25s;
+}
+.enlace-subrayado:hover {
+  background-size: 100% 1.5px;
+}
+
+/* Ocultar la barra de desplazamiento en carruseles y pestañas (siguen funcionando con el dedo y el teclado) */
+.sin-barra {
+  scrollbar-width: none;
+}
+.sin-barra::-webkit-scrollbar {
+  display: none;
+}
+
+/* Marcador de foto: trama suave mientras no esté la foto real */
+.marcador-trama {
+  background-image: repeating-linear-gradient(135deg, currentColor 0 1px, transparent 1px 14px);
+  opacity: 0.12;
+}
+
+/* ---------- Momento protagonista: el manifiesto ---------- */
+.manifiesto {
+  height: 240vh;
+}
+.manifiesto-fijo {
+  position: sticky;
+  top: 0;
+  min-height: 100vh;
+  min-height: 100svh;
+  padding-top: 5rem;
+  padding-bottom: 3rem;
+}
+.trazo-animado {
+  stroke-dasharray: 1;
+  stroke-dashoffset: var(--d, 1);
+}
+.palabra-destacada {
+  background: none;
+  color: #6b675f;
+  background-image: linear-gradient(#496275, #496275);
+  background-repeat: no-repeat;
+  background-position: 0 92%;
+  background-size: 0% 0.09em;
+  transition: color 0.5s ease, background-size 0.7s cubic-bezier(0.65, 0, 0.35, 1);
+}
+.palabra-destacada[data-encendida="true"] {
+  color: #496275;
+  background-size: 100% 0.09em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .manifiesto {
+    height: auto;
+  }
+  .manifiesto-fijo {
+    position: static;
+    min-height: 0;
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+  }
+  .trazo-animado {
+    stroke-dashoffset: 0;
+  }
+  .palabra-destacada {
+    transition: none;
+    color: #496275;
+    background-size: 100% 0.09em;
+  }
+}
+
+/* ---------- Archivo: cambio de foto ---------- */
+.pieza-segunda {
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+.pieza[data-volteada="true"] .pieza-segunda {
+  opacity: 1;
+}
+@media (hover: hover) {
+  .pieza:hover .pieza-segunda {
+    opacity: 1;
+  }
+}
+
+/* ---------- Apariciones suaves (secundarias) ---------- */
+.js .reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.js .reveal[data-visible="true"] {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .pieza-segunda {
+    transition: none;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
