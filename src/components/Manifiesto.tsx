@@ -12,8 +12,8 @@ type Tramo = { texto: string; destacado?: boolean };
 const TEXTO: Tramo[] = [
   { texto: "En Cabra Austral " },
   { texto: "todo sale de acá", destacado: true },
-  { texto: ": la masa de las medialunas, el chipá, los scones, las tortas y los alfajores. El café lo preparamos " },
-  { texto: "taza por taza", destacado: true },
+  { texto: ": la masa de las medialunas, el chipá, los scones, las tortas y los alfajores. El café se cuida " },
+  { texto: "en cada detalle", destacado: true },
   { texto: ", el mate se ceba " },
   { texto: "sin apuro", destacado: true },
   { texto: ", y afuera puede soplar el viento que " },
