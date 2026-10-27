@@ -39,7 +39,8 @@ La tabla `products` no se toca: sus permisos quedan como están.
 | Cambiar el orden de las categorías | Con el `sort_order` de cada categoría en el POS. Los productos van en orden alfabético. |
 | Subir fotos | Ver `FOTOS.md`. Subilas a `public/fotos/` desde GitHub (**Add file → Upload files**) con el nombre exacto. |
 | Cambiar mates y accesorios | `src/data/archivo.ts` |
-| Cambiar los pies de foto de Momentos | `src/data/momentos.ts` |
+| Cambiar los pies de foto | `src/data/menu-fotos.ts` (cinta del menú) y `src/data/momentos.ts` (Momentos) |
+| Sacar del menú una categoría que es de venta | `src/lib/menu.ts`, lista `FUERA_DEL_MENU` |
 | Cambiar horarios | `src/lib/horarios.ts` (horarios, texto y datos para Google están juntos) |
 | Cambiar teléfono, Instagram o dirección | `src/lib/negocio.ts` |
 | Cambiar textos de portada o manifiesto | `src/components/Hero.tsx` y `src/components/Manifiesto.tsx` |
@@ -80,7 +81,7 @@ cabra-austral-web/
    ├─ components/
    │  ├─ Header.tsx          navegación fija: logo, Menú, Mates, Visítanos
    │  ├─ Hero.tsx            portada
-   │  ├─ Manifiesto.tsx      el momento protagonista (trazo + palabras)
+   │  ├─ Manifiesto.tsx      el momento protagonista (dibujos de la carta + palabras)
    │  ├─ Menu.tsx            menú en vivo por categorías
    │  ├─ Promos.tsx          promos de la semana
    │  ├─ Archivo.tsx         galería de mates y accesorios con cambio de foto
@@ -90,11 +91,13 @@ cabra-austral-web/
    │  ├─ Footer.tsx          pie con redes, WhatsApp y horarios
    │  ├─ Foto.tsx            foto optimizada o recuadro de marcador
    │  ├─ Logo.tsx            logo vectorial
-   │  ├─ Trazo.tsx           el sello: trazo de vapor que termina en cuerno
+   │  ├─ Dibujo.tsx          un dibujo de la carta (medialuna, taza, grano, alfajores, torta)
    │  ├─ Reveal.tsx          apariciones suaves al hacer scroll
    │  └─ JsonLd.tsx          datos estructurados de cafetería para Google
    ├─ data/
    │  ├─ archivo.ts          piezas de la galería
+   │  ├─ dibujos.ts          dibujos de la carta en vector (no editar a mano)
+   │  ├─ menu-fotos.ts       fotos y pies de la cinta del menú
    │  ├─ momentos.ts         fotos y pies del carrusel
    │  └─ menu-respaldo.ts    menú que se muestra solo si Supabase no responde
    └─ lib/

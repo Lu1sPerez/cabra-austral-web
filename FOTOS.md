@@ -12,25 +12,28 @@ No hace falta tocar el código.
 - **Exportar:** JPG, lado largo de 2400 px, calidad 80 (cada foto debería pesar menos de 1 MB). La web las optimiza igual.
 - **Nombres:** en minúscula, sin espacios ni tildes, tal cual figuran abajo. Sirven .jpg, .png o .webp.
 
-## Lista (29 fotos)
+## Lista
 
 ### Carpeta `public/fotos/`
 
-| Archivo | Proporción | Qué sacar |
-|---|---|---|
-| `portada-vertical.jpg` | 4:5 vertical | La barra con la máquina, luz de mañana. Es la primera imagen que ve el 80% de la gente (celular). Dejá lo importante en la **mitad de arriba**: abajo va el titular. |
-| `portada-horizontal.jpg` | 3:2 horizontal | La barra completa vista de costado, para computadoras. Lo importante en la **mitad derecha y arriba**. |
-| `pasteleria.jpg` | 3:2 horizontal | La vitrina de pastelería a la altura de los ojos: tortas, cookies, alfajores. Que se vean bien las texturas. |
-| `cafe-servido.jpg` | 4:5 vertical | Un café con latte art y dos medialunas, desde arriba en diagonal (45°), sobre la mesa. |
-| `fachada.jpg` | 3:2 horizontal | El frente del local con el cartel, de día, desde la vereda de enfrente. Sin autos tapando si se puede. |
-| `momento-1.jpg` | 4:5 vertical | La barra recién abierta (pie de foto: "barra, 8:00 am"). |
-| `momento-2.jpg` | 4:5 vertical | Bandeja de medialunas saliendo del horno ("la primera hornada"). |
-| `momento-3.jpg` | 4:5 vertical | Una mesa servida junto a la ventana ("mesa junto a la ventana"). |
-| `momento-4.jpg` | 4:5 vertical | Manos armando alfajores o estirando masa ("manos en la masa"). |
-| `momento-5.jpg` | 4:5 vertical | Mate, yerbero y algo dulce sobre la mesa ("tarde de mate"). |
-| `momento-6.jpg` | 4:5 vertical | La calle o la vereda del local ("perito moreno, primavera"). |
+| Archivo | Proporción | Qué sacar | Estado |
+|---|---|---|---|
+| `portada-vertical.jpg` | vertical | El salón con la barra (celular). | ✅ |
+| `portada-horizontal.jpg` | 3:2 horizontal | El salón, con el celular acostado (computadora). | ✅ provisoria: conviene una toma horizontal real |
+| `cafe-servido.jpg` | 4:5 vertical | Promos: algo servido con café. | ✅ |
+| `fachada.jpg` | 3:2 horizontal | El frente del local con el cartel, de día, desde la vereda de enfrente. | falta |
+| `menu-1.jpg` … `menu-6.jpg` | 4:5 vertical | Cinta de fotos del menú: comida. | ✅ |
+| `menu-7.jpg` | 4:5 vertical | Alfajores cortados al medio, que se vea el relleno. | falta |
+| `menu-8.jpg` | 4:5 vertical | Un licuado o frapuccino en vaso, con luz de ventana. | falta |
+| `local-1.jpg` | 4:5 vertical | Momentos: la barra con alguien preparando un café. | falta |
+| `local-2.jpg` | 4:5 vertical | Momentos: manos armando medialunas o alfajores. | falta |
+| `local-3.jpg` | 4:5 vertical | Momentos: gente conversando en una mesa (de espaldas o de costado). | falta |
+| `local-4.jpg` | 4:5 vertical | Momentos: el estante de mates bajo el arco de ladrillo. | falta |
+| `local-5.jpg` | 4:5 vertical | Momentos: leche sirviéndose en la taza, de cerca. | falta |
+| `local-6.jpg` | 4:5 vertical | Momentos: la vereda o la calle frente al local. | falta |
 
-Los pies de foto de los momentos se cambian en `src/data/momentos.ts`.
+Los pies de foto se cambian en `src/data/menu-fotos.ts` (cinta del menú) y `src/data/momentos.ts` (Momentos).
+La sección Momentos aparece sola en cuanto subas al menos una foto `local-…`.
 
 ### Carpeta `public/fotos/archivo/` (mates, bombillas, accesorios, tazas)
 
