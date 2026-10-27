@@ -13,6 +13,7 @@ import { obtenerMenu } from "@/lib/menu";
 import { foto } from "@/lib/fotos";
 import { PIEZAS } from "@/data/archivo";
 import { MOMENTOS } from "@/data/momentos";
+import { FOTOS_MENU } from "@/data/menu-fotos";
 
 // El menú se vuelve a leer de Supabase cada 5 minutos como máximo.
 export const revalidate = 300;
@@ -32,7 +33,7 @@ export default async function Inicio() {
       <main id="contenido">
         <Hero fotoVertical={foto("portada-vertical")} fotoHorizontal={foto("portada-horizontal")} />
         <Manifiesto />
-        <Menu categorias={menu.categorias} fotoPasteleria={foto("pasteleria")} />
+        <Menu categorias={menu.categorias} fotos={FOTOS_MENU.map((f) => ({ ...f, foto: foto(f.foto) }))} />
         <Promos promos={menu.promos} fotoCafe={foto("cafe-servido")} />
         <Archivo fotos={fotosArchivo} />
         <Momentos momentos={momentos} />

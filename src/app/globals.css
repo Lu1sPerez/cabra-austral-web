@@ -137,42 +137,87 @@ html {
   opacity: 0.12;
 }
 
-/* ---------- Entrada de la página (estilo landonorris) ----------
-   1) Telón pizarra: aparece la cabra y se dibuja el trazo.
-   2) El telón sube y deja ver la portada.
-   3) El titular sube línea por línea, y después el resto.
-   Dura unos 2,5 s. En la misma visita no se repite, y con "reducir movimiento" no se muestra. */
+/* ---------- Pantalla de carga y entrada (estilo landonorris) ----------
+   1) Telón pizarra: el contorno de la cabra se dibuja a mano y se rellena,
+      sube el nombre, y abajo corre un contador de 0 a 100 con su barra.
+   2) El telón sube en dos capas (pizarra y marfil) y deja ver la portada.
+   3) El titular sube línea por línea, la foto se acerca y entra el resto.
+   Dura unos 3 s. En la misma visita no se repite, y con "reducir movimiento" no se muestra. */
+@property --cuenta {
+  syntax: "<integer>";
+  initial-value: 0;
+  inherits: false;
+}
 :root {
-  --t: 1.7s; /* momento en que arranca la portada */
+  --t: 2.45s; /* momento en que arranca la portada */
 }
 .sin-intro {
   --t: 0.05s;
 }
-.intro {
+.intro,
+.intro-capa {
   position: fixed;
   inset: 0;
-  z-index: 70;
+  pointer-events: none;
+}
+.intro {
+  z-index: 71;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1.25rem;
   background: #496275;
   color: #f0eee9;
-  pointer-events: none;
-  animation: intro-sube 0.9s cubic-bezier(0.76, 0, 0.24, 1) 1.45s forwards;
+  animation: intro-sube 0.95s cubic-bezier(0.76, 0, 0.24, 1) 2.05s forwards;
 }
-.sin-intro .intro {
+.intro-capa {
+  z-index: 70;
+  background: #f0eee9;
+  animation: intro-sube 0.95s cubic-bezier(0.76, 0, 0.24, 1) 2.2s forwards;
+}
+.sin-intro .intro,
+.sin-intro .intro-capa {
   display: none;
 }
-.intro-cabra {
-  animation: aparece 0.6s ease 0.1s both;
-}
-.intro-trazo {
+.intro-logo path {
+  fill: currentColor;
+  fill-opacity: 0;
+  stroke: currentColor;
+  stroke-width: 1.3;
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
-  animation: dibuja 1s cubic-bezier(0.65, 0, 0.35, 1) 0.35s forwards;
+  animation:
+    dibuja 1.25s cubic-bezier(0.65, 0, 0.35, 1) 0.15s forwards,
+    rellena 0.55s ease 1.1s forwards;
 }
-.intro-etiqueta {
-  animation: aparece 0.5s ease 0.7s both;
+.intro-marca {
+  display: block;
+  overflow: hidden;
+}
+.intro-marca > svg {
+  display: block;
+  animation: sube 0.9s cubic-bezier(0.22, 1, 0.36, 1) 1.15s both;
+}
+.intro-aparece {
+  animation: aparece 0.6s ease 0.2s both;
+}
+.intro-contador {
+  counter-reset: cuenta var(--cuenta);
+  animation: cuenta 1.75s cubic-bezier(0.6, 0, 0.25, 1) 0.15s forwards;
+}
+.intro-contador::before {
+  content: counter(cuenta);
+}
+.intro-barra {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 3px;
+  width: 100%;
+  background: #f0eee9;
+  transform: scaleX(0);
+  transform-origin: left;
+  animation: barra 1.75s cubic-bezier(0.6, 0, 0.25, 1) 0.15s forwards;
 }
 .linea {
   display: block;
@@ -206,6 +251,21 @@ html {
 @keyframes dibuja {
   to {
     stroke-dashoffset: 0;
+  }
+}
+@keyframes rellena {
+  to {
+    fill-opacity: 1;
+  }
+}
+@keyframes cuenta {
+  to {
+    --cuenta: 100;
+  }
+}
+@keyframes barra {
+  to {
+    transform: scaleX(1);
   }
 }
 @keyframes aparece {
@@ -243,7 +303,8 @@ html {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .intro {
+  .intro,
+  .intro-capa {
     display: none;
   }
   .linea > span,
@@ -251,6 +312,47 @@ html {
   .intro-foto,
   .intro-header {
     animation: none;
+  }
+}
+
+/* ---------- Cinta de fotos del menú ---------- */
+.cinta {
+  overflow: hidden;
+}
+.cinta-pista {
+  display: flex;
+  width: max-content;
+  animation: cinta calc(var(--n, 6) * 6s) linear infinite;
+}
+.cinta-grupo {
+  display: flex;
+  gap: 12px;
+  padding-right: 12px;
+}
+.cinta-item {
+  width: 52vw;
+  max-width: 260px;
+}
+.cinta:hover .cinta-pista,
+.cinta:focus-within .cinta-pista,
+.cinta:active .cinta-pista {
+  animation-play-state: paused;
+}
+@keyframes cinta {
+  to {
+    transform: translateX(-50%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cinta {
+    overflow-x: auto;
+    padding: 0 1rem;
+  }
+  .cinta-pista {
+    animation: none;
+  }
+  .cinta-grupo[aria-hidden="true"] {
+    display: none;
   }
 }
 
@@ -266,10 +368,43 @@ html {
   padding-top: 5rem;
   padding-bottom: 3rem;
 }
-.trazo-animado {
-  stroke-dasharray: 1;
-  stroke-dashoffset: var(--d, 1);
+/* Los dibujos de la carta (ver Dibujo.tsx). Estado final por defecto: dibujados y rellenos. */
+.dibujo {
+  overflow: visible;
 }
+.dibujo path {
+  fill: currentColor;
+  fill-opacity: var(--relleno, 1);
+  stroke: currentColor;
+  stroke-width: 1.4;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: var(--trazo, 0);
+}
+.manifiesto-dibujos {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2%;
+  width: 100%;
+  height: clamp(4.5rem, 15vh, 10.5rem);
+}
+@media (min-width: 768px) {
+  .manifiesto-dibujos {
+    gap: 5%;
+    max-width: 62rem;
+  }
+}
+.manifiesto-dibujo {
+  height: 100%;
+  flex: 1 1 0;
+  min-width: 0;
+  /* entra desde abajo y un poco girado; termina apoyado en su pose */
+  transform: translateY(calc(var(--y) + (1 - var(--avance)) * 28px))
+    rotate(calc(var(--giro) + (1 - var(--avance)) * 14deg));
+  opacity: calc(0.25 + var(--avance) * 3);
+}
+
 .palabra-destacada {
   background: none;
   color: #6b675f;
@@ -293,9 +428,6 @@ html {
     min-height: 0;
     padding-top: 5rem;
     padding-bottom: 5rem;
-  }
-  .trazo-animado {
-    stroke-dashoffset: 0;
   }
   .palabra-destacada {
     transition: none;
