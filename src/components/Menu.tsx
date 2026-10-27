@@ -6,7 +6,8 @@ import Foto from "./Foto";
 import { LINKS } from "@/lib/negocio";
 import { MOSTRAR_MARCADORES } from "@/lib/fotos";
 
-type Props = { categorias: Categoria[]; fotoPasteleria: string | null };
+type FotoMenu = { foto: string | null; pie: string; indicacion: string };
+type Props = { categorias: Categoria[]; fotos: FotoMenu[] };
 
 const idDe = (nombre: string) =>
   nombre
@@ -15,7 +16,9 @@ const idDe = (nombre: string) =>
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z0-9]+/g, "-");
 
-export default function Menu({ categorias, fotoPasteleria }: Props) {
+export default function Menu({ categorias, fotos: todas }: Props) {
+  // En la web publicada solo pasan por la cinta las fotos que ya están subidas
+  const fotos = MOSTRAR_MARCADORES ? todas : todas.filter((f) => f.foto);
   const [activa, setActiva] = useState(0);
   const pestanas = useRef<(HTMLButtonElement | null)[]>([]);
 
@@ -34,22 +37,6 @@ export default function Menu({ categorias, fotoPasteleria }: Props) {
 
   return (
     <section id="menu" aria-labelledby="titulo-menu" className="scroll-mt-14 bg-marfil pb-20 md:scroll-mt-16 md:pb-28">
-      {(fotoPasteleria || MOSTRAR_MARCADORES) && (
-      <div className="relative">
-        <Foto
-          src={fotoPasteleria}
-          alt="Cookies rellenas de chocolate de Cabra Austral"
-          indicacion="Vitrina de pastelería: tortas, cookies y alfajores, a la altura de los ojos"
-          proporcion="3 / 2"
-          sizes="100vw"
-          className="max-h-[70vh]"
-        />
-        <p className="pie-foto absolute bottom-3 right-4 rounded-sm bg-marfil/85 px-2 py-1 text-noche sm:right-6">
-          cookies rellenas, de la casa
-        </p>
-      </div>
-      )}
-
       <div className="mx-auto max-w-7xl px-4 pt-20 sm:px-6 md:pt-24">
         <div className="reveal grid gap-6 md:grid-cols-[1fr_auto] md:items-end">
           <div>
@@ -68,7 +55,35 @@ export default function Menu({ categorias, fotoPasteleria }: Props) {
             .
           </p>
         </div>
+      </div>
 
+      {/* Cinta de fotos: pasa sola; se frena al tocarla o pasar el mouse. Con "reducir movimiento" queda quieta y se desliza con el dedo. */}
+      {fotos.length > 0 && (
+        <div className="cinta mt-12 md:mt-16" aria-label="Fotos de lo que hacemos" role="region">
+          <div className="cinta-pista" style={{ ["--n" as string]: fotos.length }}>
+            {[0, 1].map((copia) => (
+              <ul key={copia} className="cinta-grupo" aria-hidden={copia === 1 ? true : undefined}>
+                {fotos.map((f) => (
+                  <li key={f.pie} className="cinta-item">
+                    <figure>
+                      <Foto
+                        src={f.foto}
+                        alt={copia === 0 ? f.pie : ""}
+                        indicacion={f.indicacion}
+                        proporcion="4 / 5"
+                        sizes="(min-width: 768px) 260px, 52vw"
+                      />
+                      <figcaption className="pie-foto mt-2 text-piedra">{f.pie}</figcaption>
+                    </figure>
+                  </li>
+                ))}
+              </ul>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
         {/* Pestañas por categoría: se deslizan con el dedo en el celular */}
         <div
           role="tablist"

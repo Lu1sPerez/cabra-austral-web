@@ -1,7 +1,7 @@
 import type { CSSProperties } from "react";
 import Foto from "./Foto";
-import { Cabra } from "./Logo";
-import Trazo from "./Trazo";
+import { TextoMarca } from "./Logo";
+import { CABRA_PATH, CABRA_VIEWBOX } from "@/lib/logo-paths";
 import { LINKS, NEGOCIO } from "@/lib/negocio";
 import { MOSTRAR_MARCADORES } from "@/lib/fotos";
 
@@ -21,14 +21,37 @@ export default function Hero({ fotoVertical, fotoHorizontal }: Props) {
   const alt = "El salón de Cabra Austral, con la barra y el arco de ladrillo";
   return (
     <>
-      {/* Telón de entrada: aparece la cabra, se dibuja el trazo y el telón sube.
-          Solo la primera vez en la visita, y nunca con "reducir movimiento". */}
+      {/* Pantalla de carga: la cabra se dibuja a mano y se rellena, sube el nombre,
+          corre el contador y el telón sube en dos capas. Solo la primera vez en la visita,
+          y nunca con "reducir movimiento" (ver globals.css). */}
+      <div className="intro-capa" aria-hidden="true" />
       <div className="intro" aria-hidden="true">
-        <div className="flex flex-col items-center">
-          <Cabra className="intro-cabra h-24 w-auto md:h-32" />
-          <Trazo grosor={6} clasePath="intro-trazo" className="mt-5 h-auto w-48 md:w-64" />
-          <p className="intro-etiqueta etiqueta mt-4 text-niebla">perito moreno · desde {NEGOCIO.desde}</p>
+        <div className="intro-aparece etiqueta flex justify-between text-niebla">
+          <span>cabra austral</span>
+          <span>café · panadería · pastelería</span>
         </div>
+
+        <div className="flex flex-col items-center">
+          <svg viewBox={CABRA_VIEWBOX} className="intro-logo h-auto w-36 md:w-48" focusable="false">
+            <path d={CABRA_PATH} pathLength={1} />
+          </svg>
+          <span className="intro-marca mt-5">
+            <TextoMarca className="h-16 w-auto md:h-20" />
+          </span>
+        </div>
+
+        <div className="flex items-end justify-between">
+          <p className="intro-aparece etiqueta text-niebla">
+            perito moreno · santa cruz
+            <br />
+            desde {NEGOCIO.desde}
+          </p>
+          <p className="font-display text-6xl leading-none md:text-8xl">
+            <span className="intro-contador" />
+            <span className="ml-1 align-top text-2xl md:text-3xl">%</span>
+          </p>
+        </div>
+        <div className="intro-barra" />
       </div>
 
       <section

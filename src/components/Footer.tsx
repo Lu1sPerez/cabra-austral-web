@@ -1,5 +1,6 @@
 import { Cabra, TextoMarca } from "./Logo";
-import Trazo from "./Trazo";
+import Dibujo from "./Dibujo";
+import { DIBUJOS } from "@/data/dibujos";
 import { HORARIOS_TEXTO } from "@/lib/horarios";
 import { LINKS, NEGOCIO } from "@/lib/negocio";
 
@@ -11,7 +12,11 @@ export default function Footer() {
           <Cabra className="h-20 w-auto md:h-28" />
           <TextoMarca className="h-16 w-auto md:h-24" />
         </div>
-        <Trazo grosor={4} className="mt-8 h-auto w-full max-w-md text-niebla" />
+        <div className="mt-8 flex items-end gap-5 text-niebla/80 md:gap-7">
+          {DIBUJOS.map((d) => (
+            <Dibujo key={d.nombre} dibujo={d} className="h-10 w-auto md:h-12" />
+          ))}
+        </div>
 
         <div className="mt-14 grid gap-10 border-t border-marfil/20 pt-10 sm:grid-cols-3">
           <div>
