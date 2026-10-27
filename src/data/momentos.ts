@@ -1,11 +1,12 @@
-// Carrusel de momentos. Fotos verticales 4:5 en public/fotos/momento-1.jpg … momento-6.jpg
-// El "pie" es el texto chico que va debajo de cada foto. En la web publicada solo aparecen los que tienen foto.
+// Carrusel de momentos: el local, la barra y la gente (la comida va en la cinta del menú).
+// Fotos verticales 4:5 en public/fotos/local-1.jpg … local-6.jpg
+// El "pie" es el texto chico que va debajo de cada foto. En la web publicada solo aparecen las que tienen foto.
 
 export const MOMENTOS = [
-  { foto: "momento-1", pie: "medialunas de la casa", indicacion: "Bandeja de medialunas" },
-  { foto: "momento-2", pie: "chipá y café con leche", indicacion: "Chipá y café desde arriba" },
-  { foto: "momento-3", pie: "cookie rellena", indicacion: "Cookie rellena de chocolate" },
-  { foto: "momento-4", pie: "mini cheesecake con nuez", indicacion: "Mini cheesecake en la mano" },
-  { foto: "momento-5", pie: "pan de la casa", indicacion: "Pan casero con el salón de fondo" },
-  { foto: "momento-6", pie: "perito moreno, primavera", indicacion: "La calle o la vereda del local" },
+  { foto: "local-1", pie: "barra, a primera hora", indicacion: "La barra con la máquina, alguien preparando un café" },
+  { foto: "local-2", pie: "manos en la masa", indicacion: "Manos armando medialunas o alfajores" },
+  { foto: "local-3", pie: "mesa junto a la ventana", indicacion: "Gente conversando en una mesa (de espaldas o de costado)" },
+  { foto: "local-4", pie: "el arco y los mates", indicacion: "El estante de mates bajo el arco de ladrillo" },
+  { foto: "local-5", pie: "latte art", indicacion: "Leche sirviéndose en la taza, de cerca" },
+  { foto: "local-6", pie: "perito moreno, de tarde", indicacion: "La vereda o la calle frente al local" },
 ];
