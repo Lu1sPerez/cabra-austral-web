@@ -15,8 +15,9 @@ import { PIEZAS } from "@/data/archivo";
 import { MOMENTOS } from "@/data/momentos";
 import { FOTOS_MENU } from "@/data/menu-fotos";
 
-// El menú se vuelve a leer de Supabase cada 5 minutos como máximo.
-export const revalidate = 300;
+// La página se arma en cada visita, así el menú y las promos siempre son los que están activos en el POS.
+// (Antes se guardaba una copia y Vercel la actualizaba recién después de una visita: si nadie entraba, quedaba vieja.)
+export const dynamic = "force-dynamic";
 
 export default async function Inicio() {
   const menu = await obtenerMenu();
