@@ -3,7 +3,7 @@ import { CATEGORIAS_RESPALDO, PROMOS_RESPALDO } from "@/data/menu-respaldo";
 export type Categoria = { nombre: string; productos: string[] };
 export type Menu = { categorias: Categoria[]; promos: string[]; enVivo: boolean };
 
-type Fila = { category: string; category_order: number | null; name: string };
+type Fila = { category: string | null; category_order: number | null; name: string | null };
 
 // La categoría cuyo nombre empiece con "promo" (Promo, Promos, Promociones…)
 // se muestra aparte, en la sección de promos de la semana.
@@ -18,55 +18,111 @@ const normalizar = (t: string) =>
   t
     .toLowerCase()
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[̀-ͯ]/g, "")
     .trim();
 
-const esDeVenta = (categoria: string) => {
+export const esDeVenta = (categoria: string) => {
   const nombre = normalizar(categoria);
   // "mate" solo cuenta como palabra entera ("Mates", "Mate imperial"), no "Tomate"
   return FUERA_DEL_MENU.some((palabra) => new RegExp(`^${palabra}(es|s)?\\b`).test(nombre));
 };
 
+export type Consulta =
+  | { tipo: "sin-variables"; faltan: string[] }
+  | { tipo: "sin-conexion"; detalle: string }
+  | { tipo: "error"; status: number; codigo?: string; mensaje: string }
+  | { tipo: "ok"; filas: Fila[] };
+
 /**
- * Lee el menú en vivo desde Supabase usando la función pública get_public_menu().
+ * Llama a la función pública get_public_menu() de Supabase y devuelve qué pasó, con detalle.
  * Nunca toca la tabla products directamente: no expone precios ni costos.
- * El resultado se guarda 5 minutos (ver `revalidate` en page.tsx).
+ */
+export async function consultarMenu(): Promise<Consulta> {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+  const clave = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
+  const faltan = [
+    !url && "NEXT_PUBLIC_SUPABASE_URL",
+    !clave && "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+  ].filter(Boolean) as string[];
+  if (!url || !clave) return { tipo: "sin-variables", faltan };
+
+  let res: Response;
+  try {
+    res = await fetch(`${url.replace(/\/+$/, "")}/rest/v1/rpc/get_public_menu`, {
+      method: "POST",
+      headers: {
+        apikey: clave,
+        Authorization: `Bearer ${clave}`,
+        "Content-Type": "application/json",
+      },
+      body: "{}",
+      cache: "no-store", // siempre lo último del POS
+      signal: AbortSignal.timeout(8000),
+    });
+  } catch (error) {
+    return { tipo: "sin-conexion", detalle: error instanceof Error ? error.message : String(error) };
+  }
+
+  if (!res.ok) {
+    let codigo: string | undefined;
+    let mensaje = `Supabase respondió ${res.status}`;
+    try {
+      const cuerpo = await res.json();
+      codigo = cuerpo?.code;
+      mensaje = [cuerpo?.message, cuerpo?.hint, cuerpo?.details].filter(Boolean).join(" · ") || mensaje;
+    } catch {
+      /* respuesta sin JSON */
+    }
+    return { tipo: "error", status: res.status, codigo, mensaje };
+  }
+
+  const filas = await res.json().catch(() => null);
+  return { tipo: "ok", filas: Array.isArray(filas) ? filas : [] };
+}
+
+/** Arma el menú a partir de las filas: separa promos y saca lo que es de venta. */
+export function armarMenu(filas: Fila[]) {
+  const categorias: Categoria[] = [];
+  const promos: string[] = [];
+  const fueraDelMenu = new Set<string>();
+  for (const fila of filas) {
+    const categoria = (fila.category ?? "Otros").trim() || "Otros";
+    const nombre = (fila.name ?? "").trim();
+    if (!nombre) continue;
+    if (esDeVenta(categoria)) {
+      fueraDelMenu.add(categoria);
+      continue;
+    }
+    if (esPromo(categoria)) {
+      promos.push(nombre);
+      continue;
+    }
+    let cat = categorias.find((c) => c.nombre === categoria);
+    if (!cat) {
+      cat = { nombre: categoria, productos: [] };
+      categorias.push(cat);
+    }
+    cat.productos.push(nombre);
+  }
+  return { categorias, promos, fueraDelMenu: [...fueraDelMenu] };
+}
+
+/**
+ * El menú para la web. Si Supabase no responde, muestra el menú de respaldo
+ * (ver /estado-menu para saber por qué).
  */
 export async function obtenerMenu(): Promise<Menu> {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const clave = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   const respaldo: Menu = { categorias: CATEGORIAS_RESPALDO, promos: PROMOS_RESPALDO, enVivo: false };
+  const consulta = await consultarMenu();
 
-  if (!url || !clave) return respaldo;
-
-  try {
-    const res = await fetch(`${url.replace(/\/$/, "")}/rest/v1/rpc/get_public_menu`, {
-      headers: { apikey: clave, Authorization: `Bearer ${clave}` },
-      next: { revalidate: 300 },
-      signal: AbortSignal.timeout(6000),
-    });
-    if (!res.ok) throw new Error(`Supabase respondió ${res.status}`);
-    const filas: Fila[] = await res.json();
-    if (!Array.isArray(filas) || filas.length === 0) return respaldo;
-
-    const categorias: Categoria[] = [];
-    const promos: string[] = [];
-    for (const fila of filas) {
-      if (esDeVenta(fila.category)) continue;
-      if (esPromo(fila.category)) {
-        promos.push(fila.name);
-        continue;
-      }
-      let cat = categorias.find((c) => c.nombre === fila.category);
-      if (!cat) {
-        cat = { nombre: fila.category, productos: [] };
-        categorias.push(cat);
-      }
-      cat.productos.push(fila.name);
-    }
-    return { categorias, promos, enVivo: true };
-  } catch (error) {
-    console.error("No se pudo leer el menú de Supabase:", error);
+  if (consulta.tipo !== "ok") {
+    console.error("Menú: no se pudo leer Supabase →", JSON.stringify(consulta));
     return respaldo;
   }
+  const { categorias, promos } = armarMenu(consulta.filas);
+  if (categorias.length === 0 && promos.length === 0) {
+    console.error("Menú: Supabase respondió, pero sin productos activos.");
+    return respaldo;
+  }
+  return { categorias, promos, enVivo: true };
 }
