@@ -34,7 +34,8 @@ La tabla `products` no se toca: sus permisos quedan como están.
 
 | Quiero… | Cómo |
 |---|---|
-| Cambiar las promos de la semana | En el POS, activá o desactivá productos de la categoría **Promos**. La web se actualiza sola en hasta 5 minutos. Si no hay ninguna activa, la sección desaparece. |
+| Ver si la web lee bien el menú del POS | Abrí `/estado-menu` (ej. `https://cabra-austral-web.vercel.app/estado-menu`): dice qué falla y cómo arreglarlo. |
+| Cambiar las promos de la semana | En el POS, activá o desactivá productos de la categoría **Promos**. La web lo muestra en la próxima visita (lee el POS cada vez). Si no hay ninguna activa, la sección desaparece. |
 | Sumar o sacar productos del menú | En el POS. Solo se muestran los activos, sin precios. |
 | Cambiar el orden de las categorías | Con el `sort_order` de cada categoría en el POS. Los productos van en orden alfabético. |
 | Subir fotos | Ver `FOTOS.md`. Subilas a `public/fotos/` desde GitHub (**Add file → Upload files**) con el nombre exacto. |
