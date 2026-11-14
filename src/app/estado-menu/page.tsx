@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { armarMenu, consultarMenu } from "@/lib/menu";
+import { armarMenu, consultarMenu, sinTraduccion } from "@/lib/menu";
 
 // Página de control: abrí /estado-menu para ver si la web está leyendo el menú del POS.
 // No aparece en Google ni en el menú de la web. No muestra claves, precios ni costos.
@@ -97,6 +97,7 @@ export default async function EstadoMenu() {
   const menu = consulta.tipo === "ok" ? armarMenu(consulta.filas) : null;
   const productos = menu ? menu.categorias.reduce((n, c) => n + c.productos.length, 0) + menu.promos.length : 0;
   const r = diagnosticar(consulta, productos);
+  const faltanEnIngles = menu ? sinTraduccion(menu) : [];
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
   let proyecto = "—";
@@ -176,6 +177,25 @@ export default async function EstadoMenu() {
               </li>
             )}
           </ul>
+
+          <h2 className="etiqueta mt-10 text-piedra">versión en inglés (/en)</h2>
+          {faltanEnIngles.length === 0 ? (
+            <p className="mt-2 text-[15px]">✓ Todo el menú tiene su traducción al inglés.</p>
+          ) : (
+            <>
+              <p className="mt-2 text-[15px] leading-relaxed">
+                {faltanEnIngles.length === 1 ? "Este aparece" : `Estos ${faltanEnIngles.length} aparecen`} en castellano en la versión en
+                inglés, porque todavía no {faltanEnIngles.length === 1 ? "tiene" : "tienen"} traducción. Para traducirlos, sumalos en{" "}
+                <code className="rounded bg-niebla px-1">src/i18n/menu-en.ts</code> (el nombre tal como está en el POS y cómo se dice en
+                inglés).
+              </p>
+              <ul className="mt-3 list-disc space-y-1 pl-5 text-[15px] text-piedra">
+                {faltanEnIngles.map((nombre) => (
+                  <li key={nombre}>{nombre}</li>
+                ))}
+              </ul>
+            </>
+          )}
         </>
       )}
 
