@@ -13,6 +13,28 @@ html {
   }
 }
 
+:root {
+  /* Radio de las láminas: cada sección sube por encima de la anterior con las puntas redondeadas */
+  --radio-lamina: 28px;
+  /* Margen lateral del contenido (lo usan las galerías para alinearse con los títulos) */
+  --margen: 1rem;
+}
+@media (min-width: 640px) {
+  :root {
+    --margen: 1.5rem;
+  }
+}
+@media (min-width: 768px) {
+  :root {
+    --radio-lamina: 44px;
+  }
+}
+
+/* Superficie clara de las tarjetas, un punto más luminosa que el fondo marfil */
+.bg-papel {
+  background-color: #faf9f6;
+}
+
 /* Foco visible y claro en toda la web (teclado) */
 :focus-visible {
   outline: 3px solid #496275;
@@ -70,6 +92,14 @@ html {
   font-size: clamp(1.6rem, 6.5vw, 2.6rem);
 }
 
+/* Frase de presentación de cada sección: más grande que el texto común */
+.bajada {
+  font-size: clamp(1.15rem, 2.1vw, 1.5rem);
+  line-height: 1.3;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
 /* Etiquetas chicas en minúscula, al estilo "café · desde 2026" */
 .etiqueta {
   font-size: 12px;
@@ -94,7 +124,10 @@ html {
   border-radius: 999px;
   font-weight: 700;
   font-size: 15px;
-  transition: background-color 0.2s, color 0.2s;
+  transition: background-color 0.2s, color 0.2s, transform 0.2s;
+}
+.boton:active {
+  transform: scale(0.97);
 }
 
 .boton-redondo {
@@ -104,12 +137,19 @@ html {
   align-items: center;
   justify-content: center;
   border-radius: 999px;
-  border: 1px solid rgb(240 238 233 / 0.5);
+  background: rgb(240 238 233 / 0.14);
   font-size: 18px;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s, opacity 0.2s;
 }
 .boton-redondo:hover {
-  background: rgb(240 238 233 / 0.12);
+  background: rgb(240 238 233 / 0.26);
+}
+.boton-redondo:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.boton-redondo:disabled:hover {
+  background: rgb(240 238 233 / 0.14);
 }
 
 .enlace-subrayado {
@@ -121,6 +161,48 @@ html {
 }
 .enlace-subrayado:hover {
   background-size: 100% 1.5px;
+}
+
+/* ---------- Barra de arriba: píldora de vidrio que flota sobre la página ---------- */
+.barra {
+  background: rgb(240 238 233 / 0.78);
+  -webkit-backdrop-filter: saturate(1.5) blur(18px);
+  backdrop-filter: saturate(1.5) blur(18px);
+  border: 1px solid rgb(34 45 53 / 0.08);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.55),
+    0 10px 30px -14px rgb(34 45 53 / 0.45);
+}
+
+/* Celulares muy angostos: todo un poco más junto para que entre */
+@media (max-width: 359px) {
+  .barra {
+    padding-left: 0.75rem;
+  }
+  .barra ul {
+    gap: 0.45rem;
+    font-size: 12px;
+  }
+}
+
+/* Botón ES / EN de la barra de arriba */
+.selector-idioma {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 28px;
+  padding: 0 0.55rem;
+  border: 1.5px solid #496275;
+  border-radius: 999px;
+  color: #496275;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  transition: background-color 0.2s, color 0.2s;
+}
+.selector-idioma:hover {
+  background: #496275;
+  color: #f0eee9;
 }
 
 /* Ocultar la barra de desplazamiento en carruseles y pestañas (siguen funcionando con el dedo y el teclado) */
@@ -222,11 +304,14 @@ html {
 .linea {
   display: block;
   overflow: hidden;
-  padding-top: 0.08em;
-  margin-top: -0.08em;
+  /* aire para las tildes de las mayúsculas (MENÚ), que si no quedarían cortadas */
+  padding-top: 0.16em;
+  margin-top: -0.16em;
 }
 .linea > span {
   display: block;
+}
+.titulo-portada .linea > span {
   animation: sube 1s cubic-bezier(0.22, 1, 0.36, 1) both;
   animation-delay: calc(var(--t) + var(--i, 0) * 90ms);
 }
@@ -307,7 +392,7 @@ html {
   .intro-capa {
     display: none;
   }
-  .linea > span,
+  .titulo-portada .linea > span,
   .entra,
   .intro-foto,
   .intro-header {
@@ -315,45 +400,310 @@ html {
   }
 }
 
-/* ---------- Cinta de fotos del menú ---------- */
-.cinta {
-  overflow: hidden;
+/* ---------- Portada: queda fija y la página sube por encima ----------
+   --p va de 0 a 1 mientras se scrollea la primera pantalla (lo calcula Movimiento.tsx). */
+.portada {
+  position: sticky;
+  top: 0;
 }
-.cinta-pista {
-  display: flex;
-  width: max-content;
-  animation: cinta calc(var(--n, 6) * 6s) linear infinite;
+.portada-foto {
+  transform: scale(calc(1 + var(--p, 0) * 0.07));
+  transform-origin: 50% 35%;
+  will-change: transform;
 }
-.cinta-grupo {
-  display: flex;
-  gap: 12px;
-  padding-right: 12px;
+/* Foto vertical en el celular y la tablet parada; horizontal en pantallas apaisadas */
+.portada-horizontal {
+  display: none;
 }
-.cinta-item {
-  width: 52vw;
-  max-width: 260px;
-}
-.cinta:hover .cinta-pista,
-.cinta:focus-within .cinta-pista,
-.cinta:active .cinta-pista {
-  animation-play-state: paused;
-}
-@keyframes cinta {
-  to {
-    transform: translateX(-50%);
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .cinta {
-    overflow-x: auto;
-    padding: 0 1rem;
-  }
-  .cinta-pista {
-    animation: none;
-  }
-  .cinta-grupo[aria-hidden="true"] {
+@media (min-width: 768px) and (orientation: landscape) {
+  .portada-vertical {
     display: none;
   }
+  .portada-horizontal {
+    display: block;
+  }
+}
+.portada-contenido {
+  /* el manifiesto asoma por abajo: se deja ese lugar libre */
+  margin-bottom: var(--radio-lamina);
+  transform: translate3d(0, calc(var(--p, 0) * -9vh), 0);
+  opacity: calc(1 - var(--p, 0) * 1.6);
+}
+.portada-pie {
+  bottom: calc(var(--radio-lamina) + 0.75rem);
+}
+.portada-velo {
+  position: absolute;
+  inset: 0;
+  background: #222d35;
+  opacity: calc(var(--p, 0) * 0.6);
+  pointer-events: none;
+}
+/* En pantallas muy bajas (celular acostado) la portada no se fija, para que no quede texto tapado */
+@media (max-height: 599px) {
+  .portada {
+    position: relative;
+  }
+}
+
+/* ---------- Láminas ---------- */
+.lamina {
+  position: relative;
+  z-index: 1;
+  border-radius: var(--radio-lamina) var(--radio-lamina) 0 0;
+  margin-top: calc(var(--radio-lamina) * -1);
+}
+/* La sección que queda debajo de una lámina suma este espacio para que no le tape contenido */
+.solape::after {
+  content: "";
+  display: block;
+  height: var(--radio-lamina);
+}
+
+/* ---------- Marquesina: palabras y dibujos que cruzan la pantalla al scrollear ----------
+   --r va de 0 a 1 mientras la franja atraviesa la pantalla (Movimiento.tsx). */
+.marquesina {
+  overflow: hidden;
+  color: #496275;
+}
+.marquesina-fila {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  font-family: var(--font-display), Georgia, serif;
+  text-transform: uppercase;
+  font-size: clamp(3rem, 12.5vw, 8rem);
+  line-height: 1.02;
+  white-space: nowrap;
+  transform: translate3d(calc(var(--r, 0.5) * -34%), 0, 0);
+}
+.marquesina-fila[data-sentido="vuelta"] {
+  transform: translate3d(calc(-34% + var(--r, 0.5) * 34%), 0, 0);
+}
+.marquesina-hueca {
+  color: transparent;
+  -webkit-text-stroke: 1.5px #496275;
+}
+.marquesina-dibujo {
+  height: 0.62em;
+  width: auto;
+  margin: 0 0.32em;
+  flex-shrink: 0;
+}
+
+/* ---------- Galería de fotos (tarjetas grandes que se deslizan) ---------- */
+.galeria {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  /* arranca alineada con los títulos y sigue hasta el borde de la pantalla */
+  padding-inline: max(var(--margen), calc((100vw - 80rem) / 2 + var(--margen)));
+  scroll-padding-inline: max(var(--margen), calc((100vw - 80rem) / 2 + var(--margen)));
+}
+.galeria-item {
+  flex: 0 0 74%;
+  max-width: 400px;
+  scroll-snap-align: start;
+}
+@media (min-width: 640px) {
+  .galeria {
+    gap: 16px;
+  }
+  .galeria-item {
+    flex-basis: 42%;
+  }
+}
+@media (min-width: 1024px) {
+  .galeria-item {
+    flex-basis: 30%;
+  }
+}
+.tarjeta-foto {
+  position: relative;
+  overflow: hidden;
+  border-radius: 22px;
+}
+@media (min-width: 768px) {
+  .tarjeta-foto {
+    border-radius: 28px;
+  }
+}
+.tarjeta-foto img {
+  transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@media (hover: hover) {
+  .tarjeta-foto:hover img {
+    transform: scale(1.04);
+  }
+}
+.tarjeta-foto figcaption {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: 4.5rem 1.1rem 1.1rem;
+  background: linear-gradient(to top, rgb(34 45 53 / 0.86), rgb(34 45 53 / 0));
+  font-family: var(--font-display), Georgia, serif;
+  text-transform: uppercase;
+  font-size: clamp(1.35rem, 2.4vw, 1.75rem);
+  line-height: 0.96;
+  color: #f0eee9;
+}
+
+/* ---------- Menú: categorías ---------- */
+.menu-pestanas {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  margin-inline: calc(var(--margen) * -1);
+  padding: 0 var(--margen) 0.5rem;
+}
+.menu-pestana {
+  flex-shrink: 0;
+  border: 1px solid #d8d4cc;
+  border-radius: 999px;
+  padding: 0.55rem 1rem;
+  font-size: 14px;
+  font-weight: 600;
+  transition: color 0.2s, background-color 0.2s, border-color 0.2s;
+}
+.menu-pestana:hover {
+  border-color: #496275;
+}
+.menu-pestana[aria-selected="true"] {
+  background: #496275;
+  border-color: #496275;
+  color: #f0eee9;
+}
+.menu-pestana .cuenta {
+  display: none;
+}
+/* En pantallas grandes las categorías son una lista de palabras grandes, a la izquierda */
+@media (min-width: 768px) {
+  .menu-pestanas {
+    flex-direction: column;
+    gap: 0;
+    overflow: visible;
+    margin-inline: 0;
+    padding: 0;
+    border-top: 1px solid #d8d4cc;
+  }
+  .menu-pestana,
+  .menu-pestana[aria-selected="true"] {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    width: 100%;
+    border: 0;
+    border-bottom: 1px solid #d8d4cc;
+    border-radius: 0;
+    background: none;
+    padding: 0.7rem 0 0.6rem;
+    font-family: var(--font-display), Georgia, serif;
+    font-size: clamp(1.9rem, 3.5vw, 2.75rem);
+    font-weight: 800;
+    line-height: 1;
+    text-transform: uppercase;
+    text-align: left;
+    color: #89847a;
+  }
+  .menu-pestana:hover {
+    color: #222d35;
+  }
+  .menu-pestana[aria-selected="true"] {
+    color: #496275;
+  }
+  .menu-pestana .cuenta {
+    display: inline;
+    font-family: var(--font-sans), system-ui, sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+  }
+}
+/* El título y las categorías quedan fijos mientras se lee una lista larga (solo si entran enteros en la pantalla) */
+@media (min-width: 768px) and (min-height: 860px) {
+  .menu-fijo {
+    position: sticky;
+    top: 6.5rem;
+    align-self: start;
+  }
+}
+/* Al cambiar de categoría, los productos entran uno detrás de otro */
+.menu-lista > li {
+  animation: aparece 0.45s ease both;
+  animation-delay: calc(var(--i, 0) * 28ms);
+}
+
+/* ---------- Promos: foto apoyada, un poco torcida ---------- */
+.promo-foto {
+  transform: rotate(2.2deg);
+}
+.promo-etiqueta {
+  position: absolute;
+  left: 1rem;
+  bottom: -0.9rem;
+  transform: rotate(-3deg);
+  border-radius: 999px;
+  background: #f0eee9;
+  color: #222d35;
+  padding: 0.4rem 0.85rem;
+}
+
+/* ---------- Archivo: lista de piezas (cuando todavía no tienen foto) ---------- */
+.archivo-fila {
+  position: relative;
+  display: grid;
+  grid-template-columns: 3.4rem 1fr auto;
+  align-items: baseline;
+  column-gap: 0.75rem;
+  border-bottom: 1px solid rgb(34 45 53 / 0.16);
+  padding: 1.1rem 0;
+  transition: background-color 0.25s, color 0.25s, padding 0.25s;
+}
+.archivo-fila .detalle {
+  grid-column: 2 / 3;
+}
+@media (min-width: 768px) {
+  .archivo-fila {
+    grid-template-columns: 5rem minmax(0, 1.2fr) minmax(0, 1fr) auto;
+    column-gap: 1.5rem;
+    padding: 1.4rem 0;
+  }
+  .archivo-fila .detalle {
+    grid-column: auto;
+  }
+}
+/* todo el renglón lleva a WhatsApp */
+.archivo-fila a::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+@media (hover: hover) {
+  .archivo-fila:hover {
+    background: #496275;
+    color: #f0eee9;
+    padding-inline: 1rem;
+  }
+  .archivo-fila:hover .text-piedra,
+  .archivo-fila:hover .text-pizarra {
+    color: #dce4ea;
+  }
+}
+
+/* ---------- Pie: el nombre, enorme, apoyado en el borde ---------- */
+.pie-marca {
+  font-family: var(--font-display), Georgia, serif;
+  text-transform: uppercase;
+  white-space: nowrap;
+  text-align: center;
+  line-height: 0.74;
+  font-size: 15.2vw;
+  color: #496275;
+  /* se hunde un poco en el borde de abajo */
+  margin-bottom: -0.07em;
+  user-select: none;
 }
 
 /* ---------- Momento protagonista: el manifiesto ---------- */
@@ -461,11 +811,46 @@ html {
   transform: none;
 }
 
+/* Títulos de sección: cada línea sube desde abajo al entrar en pantalla */
+.js .reveal-titulo .linea > span {
+  transform: translateY(112%);
+  transition: transform 0.95s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: calc(var(--i, 0) * 90ms);
+}
+.js .reveal-titulo[data-visible="true"] .linea > span {
+  transform: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .js .reveal {
+  .js .reveal,
+  .js .reveal-titulo .linea > span {
     opacity: 1;
     transform: none;
     transition: none;
+  }
+  .portada {
+    position: relative;
+  }
+  .portada-foto,
+  .portada-contenido,
+  .promo-foto,
+  .promo-etiqueta {
+    transform: none;
+  }
+  .portada-contenido {
+    opacity: 1;
+  }
+  .portada-velo {
+    opacity: 0;
+  }
+  .marquesina-fila,
+  .marquesina-fila[data-sentido="vuelta"] {
+    transform: translate3d(-12%, 0, 0);
+  }
+  .tarjeta-foto img,
+  .menu-lista > li {
+    transition: none;
+    animation: none;
   }
   .pieza-segunda {
     transition: none;

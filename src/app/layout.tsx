@@ -1,7 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
+import { headers } from "next/headers";
 import "./globals.css";
 import { URL_SITIO } from "@/lib/negocio";
+import { LANG_HTML, type Idioma } from "@/i18n/idiomas";
+import { TEXTOS } from "@/i18n/textos";
 
 // Titulares: Roboto Serif condensada (la más parecida a la letra del logo).
 // Texto: Manrope, la misma del sistema interno. Ambas se sirven desde la propia web.
@@ -19,24 +22,11 @@ const sans = localFont({
   display: "swap",
 });
 
-const titulo = "Cabra Austral · Café, panadería y pastelería artesanal en Perito Moreno";
-const descripcion =
-  "Cafetería en Perito Moreno, Santa Cruz. Medialunas, chipá, scones, tortas y alfajores hechos en el local, café, té en hebras y mates. 9 de Julio 1453.";
-
+// El título y la descripción de cada idioma están en src/i18n/metadata.ts (los usa cada página).
 export const metadata: Metadata = {
   metadataBase: new URL(URL_SITIO),
-  title: titulo,
-  description: descripcion,
-  alternates: { canonical: "/" },
-  openGraph: {
-    type: "website",
-    locale: "es_AR",
-    url: "/",
-    siteName: "Cabra Austral",
-    title: titulo,
-    description: descripcion,
-  },
-  twitter: { card: "summary_large_image", title: titulo, description: descripcion },
+  title: TEXTOS.es.meta.titulo,
+  description: TEXTOS.es.meta.descripcion,
   robots: { index: true, follow: true },
 };
 
@@ -47,8 +37,10 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  // src/middleware.ts avisa en qué idioma está la página ("/" castellano, "/en" inglés)
+  const idioma: Idioma = headers().get("x-idioma") === "en" ? "en" : "es";
   return (
-    <html lang="es-AR" className={`${display.variable} ${sans.variable}`} suppressHydrationWarning>
+    <html lang={LANG_HTML[idioma]} className={`${display.variable} ${sans.variable}`} suppressHydrationWarning>
       <head>
         {/* Marca que hay JavaScript y, si ya vio la entrada en esta visita (o llega a una sección con #), la saltea */}
         <script
@@ -60,7 +52,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="bg-marfil font-sans text-noche antialiased">
         <a href="#contenido" className="saltar">
-          Saltar al contenido
+          {TEXTOS[idioma].saltar}
         </a>
         {children}
       </body>
