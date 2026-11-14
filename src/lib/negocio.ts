@@ -24,7 +24,6 @@ export const LINKS = {
   comoLlegar: `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(
     `${DIRECCION_COMPLETA}, Argentina`,
   )}`,
-  mapaEmbebido: `https://www.google.com/maps?q=${encodeURIComponent(
-    `${DIRECCION_COMPLETA}, Argentina`,
-  )}&z=16&output=embed`,
+  mapaEmbebido: (idioma: "es" | "en" = "es") =>
+    `https://www.google.com/maps?q=${encodeURIComponent(`${DIRECCION_COMPLETA}, Argentina`)}&z=16&hl=${idioma}&output=embed`,
 };

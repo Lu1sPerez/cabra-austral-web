@@ -1,4 +1,6 @@
 import { NEGOCIO } from "./negocio";
+import { TEXTOS } from "@/i18n/textos";
+import type { Idioma } from "@/i18n/idiomas";
 
 // Horarios de atención. Minutos desde la medianoche: 8:00 = 480.
 type Turno = [abre: number, cierra: number];
@@ -12,15 +14,23 @@ const FINDE: Turno[] = [
   [16 * 60, 21 * 60 + 30],
 ];
 
+const hora = (m: number) => `${Math.floor(m / 60)}:${String(m % 60).padStart(2, "0")}`;
+
 /** 0 = domingo … 6 = sábado */
 export function turnosDelDia(dia: number): Turno[] {
   return dia === 0 || dia === 6 ? FINDE : SEMANA;
 }
 
-export const HORARIOS_TEXTO = [
-  { dias: "Lunes a viernes", horas: "8:00 – 12:30 · 16:00 – 21:30" },
-  { dias: "Sábados y domingos", horas: "9:30 – 12:30 · 16:00 – 21:30" },
-];
+const rango = (turnos: Turno[]) => turnos.map(([a, c]) => `${hora(a)} – ${hora(c)}`).join(" · ");
+
+/** Horarios para mostrar en la web, armados a partir de SEMANA y FINDE */
+export function horariosTexto(idioma: Idioma = "es") {
+  const t = TEXTOS[idioma].horarios;
+  return [
+    { dias: t.semana, horas: rango(SEMANA) },
+    { dias: t.finde, horas: rango(FINDE) },
+  ];
+}
 
 // Para los datos estructurados de Google (schema.org)
 export const HORARIOS_SCHEMA = [
@@ -31,9 +41,6 @@ export const HORARIOS_SCHEMA = [
 ];
 
 const DIAS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const NOMBRE_DIA = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
-
-const hora = (m: number) => `${Math.floor(m / 60)}:${String(m % 60).padStart(2, "0")}`;
 
 /** Día y minutos actuales en la hora de Perito Moreno, sin importar dónde esté quien visita. */
 function ahoraLocal(fecha: Date) {
@@ -48,19 +55,26 @@ function ahoraLocal(fecha: Date) {
   return { dia: DIAS.indexOf(val("weekday")), minutos: Number(val("hour")) * 60 + Number(val("minute")) };
 }
 
-export function estadoAhora(fecha = new Date()): { abierto: boolean; texto: string } {
+/** Qué fila de horarios corresponde a hoy en Perito Moreno: 0 = lunes a viernes, 1 = sábados y domingos */
+export function filaDeHoy(fecha = new Date()): 0 | 1 {
+  const { dia } = ahoraLocal(fecha);
+  return dia === 0 || dia === 6 ? 1 : 0;
+}
+
+export function estadoAhora(idioma: Idioma = "es", fecha = new Date()): { abierto: boolean; texto: string } {
+  const t = TEXTOS[idioma].horarios;
   const { dia, minutos } = ahoraLocal(fecha);
   const hoy = turnosDelDia(dia);
 
   const actual = hoy.find(([a, c]) => minutos >= a && minutos < c);
-  if (actual) return { abierto: true, texto: `Abierto ahora · cierra a las ${hora(actual[1])}` };
+  if (actual) return { abierto: true, texto: t.abierto(hora(actual[1])) };
 
   const proximoHoy = hoy.find(([a]) => minutos < a);
-  if (proximoHoy) return { abierto: false, texto: `Cerrado · abre a las ${hora(proximoHoy[0])}` };
+  if (proximoHoy) return { abierto: false, texto: t.abreHoy(hora(proximoHoy[0])) };
 
   const manana = (dia + 1) % 7;
   return {
     abierto: false,
-    texto: `Cerrado · abre el ${NOMBRE_DIA[manana]} a las ${hora(turnosDelDia(manana)[0][0])}`,
+    texto: t.abreOtroDia(t.dias[manana], hora(turnosDelDia(manana)[0][0])),
   };
 }

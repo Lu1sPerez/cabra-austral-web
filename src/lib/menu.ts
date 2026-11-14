@@ -1,4 +1,6 @@
 import { CATEGORIAS_RESPALDO, PROMOS_RESPALDO } from "@/data/menu-respaldo";
+import { categoriaEnIngles, productoEnIngles } from "@/i18n/menu-en";
+import type { Idioma } from "@/i18n/idiomas";
 
 export type Categoria = { nombre: string; productos: string[] };
 export type Menu = { categorias: Categoria[]; promos: string[]; enVivo: boolean };
@@ -108,21 +110,47 @@ export function armarMenu(filas: Fila[]) {
 }
 
 /**
- * El menú para la web. Si Supabase no responde, muestra el menú de respaldo
+ * Pasa el menú al inglés con las traducciones de src/i18n/menu-en.ts.
+ * Lo que no tiene traducción queda con su nombre en castellano. En inglés, los productos van en orden alfabético inglés.
+ */
+export function traducirMenu(menu: Menu, idioma: Idioma): Menu {
+  if (idioma === "es") return menu;
+  const traducir = (nombre: string) => productoEnIngles(nombre) ?? nombre;
+  return {
+    ...menu,
+    categorias: menu.categorias.map((c) => ({
+      nombre: categoriaEnIngles(c.nombre) ?? c.nombre,
+      productos: c.productos.map(traducir).sort((a, b) => a.localeCompare(b, "en")),
+    })),
+    promos: menu.promos.map(traducir),
+  };
+}
+
+/** Categorías, productos y promos que todavía no tienen traducción al inglés (se listan en /estado-menu) */
+export function sinTraduccion(menu: Pick<Menu, "categorias" | "promos">) {
+  return [
+    ...menu.categorias.filter((c) => !categoriaEnIngles(c.nombre)).map((c) => `${c.nombre} (categoría)`),
+    ...menu.categorias.flatMap((c) => c.productos).filter((p) => !productoEnIngles(p)),
+    ...menu.promos.filter((p) => !productoEnIngles(p)).map((p) => `${p} (promo)`),
+  ];
+}
+
+/**
+ * El menú para la web, en el idioma pedido. Si Supabase no responde, muestra el menú de respaldo
  * (ver /estado-menu para saber por qué).
  */
-export async function obtenerMenu(): Promise<Menu> {
+export async function obtenerMenu(idioma: Idioma = "es"): Promise<Menu> {
   const respaldo: Menu = { categorias: CATEGORIAS_RESPALDO, promos: PROMOS_RESPALDO, enVivo: false };
   const consulta = await consultarMenu();
 
   if (consulta.tipo !== "ok") {
     console.error("Menú: no se pudo leer Supabase →", JSON.stringify(consulta));
-    return respaldo;
+    return traducirMenu(respaldo, idioma);
   }
   const { categorias, promos } = armarMenu(consulta.filas);
   if (categorias.length === 0 && promos.length === 0) {
     console.error("Menú: Supabase respondió, pero sin productos activos.");
-    return respaldo;
+    return traducirMenu(respaldo, idioma);
   }
-  return { categorias, promos, enVivo: true };
+  return traducirMenu({ categorias, promos, enVivo: true }, idioma);
 }
