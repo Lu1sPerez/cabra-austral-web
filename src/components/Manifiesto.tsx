@@ -3,27 +3,13 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import Dibujo from "./Dibujo";
 import { DIBUJOS } from "@/data/dibujos";
+import type { Idioma } from "@/i18n/idiomas";
+import { TEXTOS } from "@/i18n/textos";
 
 // El momento protagonista de la web: la sección queda fija mientras scrolleás
 // y los dibujos de la carta se dibujan uno por uno (primero el contorno, después se rellenan),
 // mientras las palabras destacadas se van marcando.
 // Con "reducir movimiento" activado, todo aparece completo y sin fijar.
-
-type Tramo = { texto: string; destacado?: boolean };
-
-const TEXTO: Tramo[] = [
-  { texto: "En Cabra Austral " },
-  { texto: "todo sale de acá", destacado: true },
-  { texto: ": la masa de las medialunas, el chipá, los scones, las tortas y los alfajores. El café lo preparamos " },
-  { texto: "taza por taza", destacado: true },
-  { texto: ", el mate se ceba " },
-  { texto: "sin apuro", destacado: true },
-  { texto: ", y afuera puede soplar el viento que " },
-  { texto: "adentro la mesa está servida", destacado: true },
-  { texto: "." },
-];
-
-const TOTAL_DESTACADOS = TEXTO.filter((t) => t.destacado).length;
 
 // Cómo queda apoyado cada dibujo al terminar (alto relativo y giro), para que la fila
 // tenga el aire suelto de la carta y no parezca una grilla.
@@ -41,7 +27,9 @@ const PASO = (1 - TRAMO) / (DIBUJOS.length - 1);
 
 const limitar = (v: number) => Math.min(1, Math.max(0, v));
 
-export default function Manifiesto() {
+export default function Manifiesto({ idioma }: { idioma: Idioma }) {
+  const t = TEXTOS[idioma].manifiesto;
+  const totalDestacados = t.texto.filter((tramo) => tramo.destacado).length;
   const seccion = useRef<HTMLElement>(null);
   const dibujos = useRef<(HTMLDivElement | null)[]>([]);
   const [encendidos, setEncendidos] = useState(0);
@@ -63,7 +51,7 @@ export default function Manifiesto() {
         if (q > 0.55) listos += 1;
       });
       // Cada palabra destacada se marca cuando termina "su" dibujo
-      setEncendidos(Math.min(TOTAL_DESTACADOS, listos));
+      setEncendidos(Math.min(totalDestacados, listos));
     };
 
     let frame = 0;
@@ -93,19 +81,19 @@ export default function Manifiesto() {
       window.removeEventListener("resize", pedir);
       reducir.removeEventListener("change", pedir);
     };
-  }, []);
+  }, [totalDestacados]);
 
   let indice = 0;
 
   return (
-    <section ref={seccion} id="manifiesto" aria-labelledby="titulo-manifiesto" className="manifiesto relative bg-marfil text-noche">
+    <section ref={seccion} id="manifiesto" aria-labelledby="titulo-manifiesto" className="manifiesto lamina bg-marfil text-noche">
       <div className="manifiesto-fijo mx-auto flex max-w-6xl flex-col justify-center px-4 sm:px-6">
         <p className="etiqueta mb-6 text-piedra">
-          <span id="titulo-manifiesto">manifiesto</span> · perito moreno, santa cruz
+          <span id="titulo-manifiesto">{t.etiqueta}</span> · {t.lugar}
         </p>
 
         <p className="texto-manifiesto">
-          {TEXTO.map((tramo, i) => {
+          {t.texto.map((tramo, i) => {
             if (!tramo.destacado) return <span key={i}>{tramo.texto}</span>;
             indice += 1;
             const encendido = indice <= encendidos;

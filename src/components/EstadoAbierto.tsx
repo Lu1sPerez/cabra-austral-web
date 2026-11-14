@@ -2,16 +2,17 @@
 
 import { useEffect, useState } from "react";
 import { estadoAhora } from "@/lib/horarios";
+import type { Idioma } from "@/i18n/idiomas";
 
 // Muestra "Abierto ahora" o "Cerrado" en la hora de Perito Moreno. Se recalcula cada minuto.
-export default function EstadoAbierto({ claro = false }: { claro?: boolean }) {
+export default function EstadoAbierto({ idioma, claro = false }: { idioma: Idioma; claro?: boolean }) {
   const [estado, setEstado] = useState<ReturnType<typeof estadoAhora> | null>(null);
 
   useEffect(() => {
-    setEstado(estadoAhora());
-    const id = setInterval(() => setEstado(estadoAhora()), 60_000);
+    setEstado(estadoAhora(idioma));
+    const id = setInterval(() => setEstado(estadoAhora(idioma)), 60_000);
     return () => clearInterval(id);
-  }, []);
+  }, [idioma]);
 
   return (
     <p aria-live="polite" className={`flex min-h-[1.5rem] items-center gap-2 text-sm font-semibold ${claro ? "text-marfil" : "text-noche"}`}>

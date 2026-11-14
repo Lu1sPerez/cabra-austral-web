@@ -1,20 +1,22 @@
 import { HORARIOS_SCHEMA } from "@/lib/horarios";
 import { DIRECCION_COMPLETA, LINKS, NEGOCIO, URL_SITIO } from "@/lib/negocio";
+import { RUTA, type Idioma } from "@/i18n/idiomas";
+import { TEXTOS } from "@/i18n/textos";
 
 // Datos estructurados para que Google entienda que es una cafetería, dónde está y cuándo abre.
-export default function JsonLd() {
+export default function JsonLd({ idioma }: { idioma: Idioma }) {
+  const t = TEXTOS[idioma].meta;
   const datos = {
     "@context": "https://schema.org",
     "@type": "CafeOrCoffeeShop",
     "@id": `${URL_SITIO}/#cafeteria`,
     name: NEGOCIO.nombre,
-    description:
-      "Cafetería, panadería y pastelería artesanal en Perito Moreno, Santa Cruz. Medialunas, chipá, scones, tortas, alfajores, café y mates.",
-    url: URL_SITIO,
+    description: t.datosGoogle,
+    url: `${URL_SITIO}${RUTA[idioma] === "/" ? "" : RUTA[idioma]}`,
     image: `${URL_SITIO}/marca/cabra-austral.svg`,
     logo: `${URL_SITIO}/marca/cabra.svg`,
     telephone: `+${NEGOCIO.whatsapp}`,
-    servesCuisine: ["Café", "Panadería", "Pastelería"],
+    servesCuisine: t.cocina,
     address: {
       "@type": "PostalAddress",
       streetAddress: NEGOCIO.direccion,

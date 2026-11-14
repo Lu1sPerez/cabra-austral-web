@@ -2,12 +2,12 @@
 
 import { useEffect } from "react";
 
-// Aparición suave de los bloques con clase "reveal" al entrar en pantalla.
-// Es el único efecto secundario de la web; el protagonista es el manifiesto.
+// Aparición suave de los bloques con clase "reveal" al entrar en pantalla,
+// y de los títulos de sección (clase "reveal-titulo"), que suben línea por línea.
 // Sin JavaScript o con "reducir movimiento", todo se ve desde el principio (ver globals.css).
 export default function Reveal() {
   useEffect(() => {
-    const elementos = document.querySelectorAll<HTMLElement>(".reveal");
+    const elementos = document.querySelectorAll<HTMLElement>(".reveal, .reveal-titulo");
     if (!("IntersectionObserver" in window)) {
       elementos.forEach((el) => (el.dataset.visible = "true"));
       return;

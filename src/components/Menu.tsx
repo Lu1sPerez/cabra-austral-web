@@ -1,31 +1,34 @@
 "use client";
 
-import { useRef, useState, type KeyboardEvent } from "react";
+import { useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
 import type { Categoria } from "@/lib/menu";
-import Foto from "./Foto";
+import Titulo from "./Titulo";
 import { LINKS } from "@/lib/negocio";
-import { MOSTRAR_MARCADORES } from "@/lib/fotos";
+import type { Idioma } from "@/i18n/idiomas";
+import { TEXTOS } from "@/i18n/textos";
 
-type FotoMenu = { foto: string | null; pie: string; indicacion: string };
-type Props = { categorias: Categoria[]; fotos: FotoMenu[] };
+type Props = { idioma: Idioma; categorias: Categoria[] };
 
 const idDe = (nombre: string) =>
   nombre
     .toLowerCase()
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[̀-ͯ]/g, "")
     .replace(/[^a-z0-9]+/g, "-");
 
-export default function Menu({ categorias, fotos: todas }: Props) {
-  // En la web publicada solo pasan por la cinta las fotos que ya están subidas
-  const fotos = MOSTRAR_MARCADORES ? todas : todas.filter((f) => f.foto);
+// El menú en vivo. En el celular las categorías son botones que se deslizan con el dedo;
+// en pantallas grandes son una lista de palabras grandes a la izquierda, que queda fija mientras se lee la lista.
+// Las fotos del menú están en la galería "Recién hecho" (Galeria.tsx).
+
+export default function Menu({ idioma, categorias }: Props) {
+  const t = TEXTOS[idioma].menu;
   const [activa, setActiva] = useState(0);
   const pestanas = useRef<(HTMLButtonElement | null)[]>([]);
 
   const conTeclado = (e: KeyboardEvent<HTMLButtonElement>, i: number) => {
     let destino = -1;
-    if (e.key === "ArrowRight") destino = (i + 1) % categorias.length;
-    if (e.key === "ArrowLeft") destino = (i - 1 + categorias.length) % categorias.length;
+    if (e.key === "ArrowRight" || e.key === "ArrowDown") destino = (i + 1) % categorias.length;
+    if (e.key === "ArrowLeft" || e.key === "ArrowUp") destino = (i - 1 + categorias.length) % categorias.length;
     if (e.key === "Home") destino = 0;
     if (e.key === "End") destino = categorias.length - 1;
     if (destino >= 0) {
@@ -36,112 +39,81 @@ export default function Menu({ categorias, fotos: todas }: Props) {
   };
 
   return (
-    <section id="menu" aria-labelledby="titulo-menu" className="scroll-mt-14 bg-marfil pb-20 md:scroll-mt-16 md:pb-28">
-      <div className="mx-auto max-w-7xl px-4 pt-20 sm:px-6 md:pt-24">
-        <div className="reveal grid gap-6 md:grid-cols-[1fr_auto] md:items-end">
-          <div>
-            <p className="etiqueta mb-4 text-piedra">lo que hay en la barra · se actualiza solo</p>
-            <h2 id="titulo-menu" className="titulo-seccion text-pizarra">
-              El
-              <br />
-              menú
-            </h2>
+    <section id="menu" aria-labelledby="titulo-menu" className="lamina solape scroll-mt-4 bg-marfil pb-20 pt-20 md:pb-28 md:pt-28">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 md:grid md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] md:gap-14 lg:gap-24">
+        <div className="menu-fijo">
+          <p className="etiqueta mb-4 text-piedra">{t.etiqueta}</p>
+          <Titulo id="titulo-menu" lineas={t.titulo} className="text-pizarra" />
+
+          <div role="tablist" aria-label={t.categorias} className="menu-pestanas sin-barra mt-10">
+            {categorias.map((cat, i) => (
+              <button
+                key={cat.nombre}
+                ref={(el) => {
+                  pestanas.current[i] = el;
+                }}
+                role="tab"
+                id={`pestana-${idDe(cat.nombre)}`}
+                aria-selected={activa === i}
+                aria-controls={`panel-${idDe(cat.nombre)}`}
+                tabIndex={activa === i ? 0 : -1}
+                onClick={() => setActiva(i)}
+                onKeyDown={(e) => conTeclado(e, i)}
+                className="menu-pestana"
+              >
+                {cat.nombre}
+                <span className="cuenta tabular-nums" aria-hidden="true">
+                  {String(cat.productos.length).padStart(2, "0")}
+                </span>
+              </button>
+            ))}
           </div>
-          <p className="max-w-xs text-sm leading-relaxed text-piedra">
-            Los precios los ves en el local o te los pasamos por{" "}
-            <a href={LINKS.whatsapp("¡Hola! ¿Me pasan los precios del menú?")} className="enlace-subrayado font-semibold text-pizarra" target="_blank" rel="noopener noreferrer">
+        </div>
+
+        <div className="mt-8 md:mt-0 md:pt-[3.2rem]">
+          {categorias.map((cat, i) => (
+            <div
+              key={cat.nombre}
+              role="tabpanel"
+              id={`panel-${idDe(cat.nombre)}`}
+              aria-labelledby={`pestana-${idDe(cat.nombre)}`}
+              hidden={activa !== i}
+              tabIndex={0}
+            >
+              {/* En pantallas grandes el nombre ya está en la lista de la izquierda: acá queda solo para lectores de pantalla */}
+              <div className="flex items-baseline justify-between border-b-2 border-noche pb-3 md:pb-0">
+                <h3 className="font-display text-3xl uppercase md:sr-only">{cat.nombre}</h3>
+                <span className="etiqueta text-piedra md:sr-only">
+                  {String(cat.productos.length).padStart(2, "0")} {t.opciones(cat.productos.length)}
+                </span>
+              </div>
+              <ul className="menu-lista grid sm:grid-cols-2 sm:gap-x-10 md:grid-cols-1 lg:grid-cols-2">
+                {cat.productos.map((p, j) => (
+                  <li
+                    key={p}
+                    className="border-b border-borde py-4 text-lg leading-snug md:py-5 md:text-xl"
+                    style={{ ["--i" as string]: j } as CSSProperties}
+                  >
+                    {p}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+
+          <p className="mt-8 max-w-sm text-sm leading-relaxed text-piedra">
+            {t.precios}{" "}
+            <a
+              href={LINKS.whatsapp(t.mensajePrecios)}
+              className="enlace-subrayado font-semibold text-pizarra"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               WhatsApp
             </a>
             .
           </p>
         </div>
-      </div>
-
-      {/* Cinta de fotos: pasa sola; se frena al tocarla o pasar el mouse. Con "reducir movimiento" queda quieta y se desliza con el dedo. */}
-      {fotos.length > 0 && (
-        <div className="cinta mt-12 md:mt-16" aria-label="Fotos de lo que hacemos" role="region">
-          <div className="cinta-pista" style={{ ["--n" as string]: fotos.length }}>
-            {[0, 1].map((copia) => (
-              <ul key={copia} className="cinta-grupo" aria-hidden={copia === 1 ? true : undefined}>
-                {fotos.map((f) => (
-                  <li key={f.pie} className="cinta-item">
-                    <figure>
-                      <Foto
-                        src={f.foto}
-                        alt={copia === 0 ? f.pie : ""}
-                        indicacion={f.indicacion}
-                        proporcion="4 / 5"
-                        sizes="(min-width: 768px) 260px, 52vw"
-                      />
-                      <figcaption className="pie-foto mt-2 text-piedra">{f.pie}</figcaption>
-                    </figure>
-                  </li>
-                ))}
-              </ul>
-            ))}
-          </div>
-        </div>
-      )}
-
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
-        {/* Pestañas por categoría: se deslizan con el dedo en el celular */}
-        <div
-          role="tablist"
-          aria-label="Categorías del menú"
-          className="sin-barra -mx-4 mt-10 flex gap-2 overflow-x-auto px-4 pb-2 sm:-mx-6 sm:px-6"
-        >
-          {categorias.map((cat, i) => (
-            <button
-              key={cat.nombre}
-              ref={(el) => {
-                pestanas.current[i] = el;
-              }}
-              role="tab"
-              id={`pestana-${idDe(cat.nombre)}`}
-              aria-selected={activa === i}
-              aria-controls={`panel-${idDe(cat.nombre)}`}
-              tabIndex={activa === i ? 0 : -1}
-              onClick={() => setActiva(i)}
-              onKeyDown={(e) => conTeclado(e, i)}
-              className={`shrink-0 rounded-full border px-4 py-2 text-sm font-semibold transition-colors ${
-                activa === i
-                  ? "border-pizarra bg-pizarra text-marfil"
-                  : "border-borde bg-transparent text-noche hover:border-pizarra"
-              }`}
-            >
-              {cat.nombre}
-            </button>
-          ))}
-        </div>
-
-        {categorias.map((cat, i) => (
-          <div
-            key={cat.nombre}
-            role="tabpanel"
-            id={`panel-${idDe(cat.nombre)}`}
-            aria-labelledby={`pestana-${idDe(cat.nombre)}`}
-            hidden={activa !== i}
-            tabIndex={0}
-            className="mt-8"
-          >
-            <div className="flex items-baseline justify-between border-b-2 border-noche pb-3">
-              <h3 className="font-display text-3xl uppercase md:text-4xl">{cat.nombre}</h3>
-              <span className="etiqueta text-piedra">
-                {String(cat.productos.length).padStart(2, "0")} {cat.productos.length === 1 ? "opción" : "opciones"}
-              </span>
-            </div>
-            <ul className="grid md:grid-cols-2 md:gap-x-12">
-              {cat.productos.map((p, j) => (
-                <li key={p} className="flex items-baseline gap-4 border-b border-borde py-4 text-lg md:text-xl">
-                  <span className="w-7 shrink-0 text-xs font-semibold tabular-nums text-piedra" aria-hidden="true">
-                    {String(j + 1).padStart(2, "0")}
-                  </span>
-                  <span>{p}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
       </div>
     </section>
   );
